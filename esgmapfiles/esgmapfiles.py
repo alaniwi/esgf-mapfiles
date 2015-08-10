@@ -76,6 +76,7 @@ class _ProcessingContext(object):
         self.latest = args.latest
         self.outdir = args.outdir
         self.verbose = args.verbose
+        self.serial = args.serial
         self.keep = args.keep_going
         self.with_version = args.with_version
         self.project = args.project
@@ -236,6 +237,11 @@ def _get_args():
         action='store_true',
         default=False,
         help="""Keep going if some files cannot be processed.\n\n""")
+    parser.add_argument(
+        '-s', '--serial',
+        action='store_true',        
+        default=False,
+        help="""Scan serially (overriding use of thread pool)\n\n""")
     parser.add_argument(
         '-v', '--verbose',
         action='store_true',
@@ -581,16 +587,21 @@ def _process(ctx):
         if ctx.verbose:
             _log('warning', 'Create output directory: {0}'.format(ctx.outdir))
         os.makedirs(ctx.outdir)
-    # Start threads pool over files list in supplied directory
-    pool = ThreadPool(int(ctx.cfg.defaults()['threads_number']))
+    if ctx.serial:
+        map_fn = map
+    else:
+        # Start threads pool over files list in supplied directory
+        pool = ThreadPool(int(ctx.cfg.defaults()['threads_number']))
+        map_fn = pool.map
     # Return the list of generated mapfiles in temporary directory
     if ctx.keep:
-        outmaps = filter(lambda m: m is not None, pool.map(_wrapper_keep_going, _yield_inputs(ctx)))
+        outmaps = filter(lambda m: m is not None, map_fn(_wrapper_keep_going, _yield_inputs(ctx)))
     else:
-        outmaps = pool.map(_wrapper, _yield_inputs(ctx))
-    # Close threads pool
-    pool.close()
-    pool.join()
+        outmaps = map_fn(_wrapper, _yield_inputs(ctx))
+    if not ctx.serial:
+        # Close threads pool
+        pool.close()
+        pool.join()
     # Overwrite each existing mapfile in output directory
     for outmap in list(set(outmaps)):
         copy2(os.path.join(ctx.dtemp, outmap), ctx.outdir)

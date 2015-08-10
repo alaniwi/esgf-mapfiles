@@ -374,7 +374,7 @@ def _check_facets(attributes, ctx):
             if not attributes[facet] in options:
                 if not ctx.keep:
                     _rmdtemp(ctx)
-                raise _Exception('"{0}" not in "{1}_options" for {2}'.format(attributes[facet], facet, file))
+                raise _Exception('"{0}" not in "{1}_options" for {2}'.format(attributes[facet], facet, attributes['project']))
 
 
 def _checksum(file, ctx):
@@ -516,6 +516,9 @@ def _file_process(inputs):
     # Matching file full path with corresponding project pattern to get all attributes
     try:
         attributes = re.match(ctx.pattern, file).groupdict()
+        if attributes['project'] != ctx.project:
+            _log('info', 'using requested project %s although dataset ID suggests %s' % (ctx.project, attributes['project']))
+            attributes['project'] = ctx.project
     except:
         # Fails can be due to:
         # -> Wrong project argument

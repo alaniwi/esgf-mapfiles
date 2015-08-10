@@ -1,8 +1,10 @@
 """
-This is a utility for updating the config.ini file used with esg_mapfiles
+This is a utility that assists when editing the config.ini file that is 
+used with esg_mapfiles, by identifying any facet values that are present 
+in a list of datasets but not in the config file.
 
 It takes the config filename and project ID as command-line arguments,
-and a list of datasets on standard input, and it outputs lists of missing 
+and the list of datasets on standard input, and it outputs lists of missing 
 facet values that may need to be added to the config file (as well as 
 lists of unused values).
 

@@ -188,9 +188,8 @@ def _get_args():
     parser.add_argument(
         '-p', '--project',
         type=str,
-        choices=['cmip5', 'cordex'],
         required=True,
-        help="""Required project to build mapfiles among:\n- cmip5\n- cordex\n\n""")
+        help="""Required project to build mapfiles among\n\n""")
     parser.add_argument(
         '-c', '--config',
         type=str,

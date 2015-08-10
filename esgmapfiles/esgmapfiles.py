@@ -350,11 +350,11 @@ def _get_master_ID(attributes, config):
     :rtype: *str*
 
     """
-    dataset_ID = config.get(attributes['project'].lower(), 'dataset_ID')
+    dataset_ID = config.get(attributes['project'], 'dataset_ID')
     facets = re.split('\.|#', dataset_ID)
     for facet in facets:
         if facet == 'project':
-            dataset_ID = dataset_ID.replace(facet, attributes[facet].lower())
+            dataset_ID = dataset_ID.replace(facet, attributes[facet])
         dataset_ID = dataset_ID.replace(facet, attributes[facet])
     return dataset_ID
 
@@ -370,7 +370,7 @@ def _check_facets(attributes, ctx):
     """
     for facet in attributes.keys():
         if not facet in ['project', 'filename', 'variable', 'root', 'version', 'ensemble']:
-            options = ctx.cfg.get(attributes['project'].lower(), '{0}_options'.format(facet)).replace(" ", "").split(',')
+            options = ctx.cfg.get(attributes['project'], '{0}_options'.format(facet)).replace(" ", "").split(',')
             if not attributes[facet] in options:
                 if not ctx.keep:
                     _rmdtemp(ctx)
